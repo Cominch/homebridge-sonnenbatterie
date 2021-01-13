@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "sonnenBatterie",
   "pluginType": "platform",
   "singular": true,
   "schema": {
@@ -9,7 +9,13 @@
         "title": "Name",
         "type": "string",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "default": "sonnenBatterie"
+      },
+      "url": {
+        "title": "URL",
+        "type": "string",
+        "required": true,
+        "default": "http://0.0.0.0:8080"
       }
     }
   }
