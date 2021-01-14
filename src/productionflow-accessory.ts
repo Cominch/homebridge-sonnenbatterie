@@ -29,7 +29,7 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
 
     this.sonnenConfiguration = sonnenConfiguration;
 
-    this.gridService = new hap.Service.Outlet('Grid', 'Grid');
+    this.gridService = new hap.Service.Outlet('To Grid', 'Grid');
 
     // create handlers for required characteristics
     this.gridService.getCharacteristic(hap.Characteristic.On)
@@ -39,7 +39,7 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
     this.gridService.getCharacteristic(hap.Characteristic.OutletInUse)
       .on('get', this.handleGridOutletInUseGet.bind(this));
 
-    this.batteryService = new hap.Service.Outlet('Battery', 'Battery');
+    this.batteryService = new hap.Service.Outlet('To Battery', 'Battery');
 
     // create handlers for required characteristics
     this.batteryService.getCharacteristic(hap.Characteristic.On)
@@ -49,7 +49,7 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
     this.batteryService.getCharacteristic(hap.Characteristic.OutletInUse)
       .on('get', this.handleBatteryOutletInUseGet.bind(this));
 
-    this.consumptionService = new hap.Service.Outlet('Consumption', 'Consumption');
+    this.consumptionService = new hap.Service.Outlet('To Consumption', 'Consumption');
 
     // create handlers for required characteristics
     this.consumptionService.getCharacteristic(hap.Characteristic.On)

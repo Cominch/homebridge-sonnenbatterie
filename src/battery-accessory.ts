@@ -19,7 +19,7 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
 
   private readonly batteryService: Service;
   private readonly chargeService: Service;
-  private readonly autonomyService: Service;
+  private readonly autarkyService: Service;
   private readonly solarSurplusService: Service;
   private readonly informationService: Service;
 
@@ -53,18 +53,18 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
 
 
     // create a new Motion Sensor service
-    this.autonomyService = new hap.Service.MotionSensor('Autonomy');
+    this.autarkyService = new hap.Service.MotionSensor('Autarky');
 
     // create handlers for required characteristics
-    this.autonomyService.getCharacteristic(hap.Characteristic.MotionDetected)
-      .on('get', this.handleAutonomyDetectedGet.bind(this));
+    this.autarkyService.getCharacteristic(hap.Characteristic.MotionDetected)
+      .on('get', this.handleAutarkyDetectedGet.bind(this));
 
     // create a new Motion Sensor service
-    this.solarSurplusService = new hap.Service.OccupancySensor('Solar Surplus');
+    this.solarSurplusService = new hap.Service.OccupancySensor('Surplus');
 
     // create handlers for required characteristics
     this.solarSurplusService.getCharacteristic(hap.Characteristic.OccupancyDetected)
-      .on('get', this.handleSolarSurplusDetectedGet.bind(this));
+      .on('get', this.handleSurplusDetectedGet.bind(this));
 
     this.informationService = new hap.Service.AccessoryInformation()
       .setCharacteristic(hap.Characteristic.Manufacturer, 'Sonnen GmbH')
@@ -94,7 +94,7 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
     return [
       this.batteryService,
       this.chargeService,
-      this.autonomyService,
+      this.autarkyService,
       this.solarSurplusService,
       this.informationService,
     ];
@@ -162,7 +162,7 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
   /**
    * Handle requests to get the current value of the "Motion Detected" characteristic
    */
-  handleAutonomyDetectedGet(callback) {
+  handleAutarkyDetectedGet(callback) {
     this.log.debug('Triggered GET MotionDetected');
 
     fetch(this.config.url + '/api/v1/status')
@@ -184,7 +184,7 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
   /**
    * Handle requests to get the current value of the "Motion Detected" characteristic
    */
-  handleSolarSurplusDetectedGet(callback) {
+  handleSurplusDetectedGet(callback) {
     this.log.debug('Triggered GET MotionDetected');
 
     fetch(this.config.url + '/api/v1/status')
