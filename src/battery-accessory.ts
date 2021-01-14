@@ -1,13 +1,9 @@
 import {
   AccessoryPlugin,
-  CharacteristicGetCallback,
-  CharacteristicSetCallback,
-  CharacteristicValue,
   HAP,
   Logging,
   PlatformConfig,
   Service,
-  CharacteristicEventTypes,
 } from 'homebridge';
 
 import fetch from 'node-fetch';
