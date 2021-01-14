@@ -17,8 +17,9 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
   // eslint-disable-next-line @typescript-eslint/ban-types
   sonnenConfiguration: Object;
 
-  private readonly batteryService: Service;
   private readonly gridService: Service;
+  private readonly batteryService: Service;
+  private readonly consumptionService: Service;
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   constructor(hap: HAP, log: Logging, name: string, config: PlatformConfig, sonnenConfiguration: Object) {
@@ -27,16 +28,6 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
     this.config = config;
 
     this.sonnenConfiguration = sonnenConfiguration;
-
-    this.batteryService = new hap.Service.Outlet('Battery', 'Battery');
-
-    // create handlers for required characteristics
-    this.batteryService.getCharacteristic(hap.Characteristic.On)
-      .on('get', this.handleBatteryOnGet.bind(this))
-      .on('set', this.handleBatteryOnSet.bind(this));
-
-    this.batteryService.getCharacteristic(hap.Characteristic.OutletInUse)
-      .on('get', this.handleBatteryOutletInUseGet.bind(this));
 
     this.gridService = new hap.Service.Outlet('Grid', 'Grid');
 
@@ -48,7 +39,26 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
     this.gridService.getCharacteristic(hap.Characteristic.OutletInUse)
       .on('get', this.handleGridOutletInUseGet.bind(this));
 
-      
+    this.batteryService = new hap.Service.Outlet('Battery', 'Battery');
+
+    // create handlers for required characteristics
+    this.batteryService.getCharacteristic(hap.Characteristic.On)
+      .on('get', this.handleBatteryOnGet.bind(this))
+      .on('set', this.handleBatteryOnSet.bind(this));
+
+    this.batteryService.getCharacteristic(hap.Characteristic.OutletInUse)
+      .on('get', this.handleBatteryOutletInUseGet.bind(this));
+
+    this.consumptionService = new hap.Service.Outlet('Consumption', 'Consumption');
+
+    // create handlers for required characteristics
+    this.consumptionService.getCharacteristic(hap.Characteristic.On)
+      .on('get', this.handleConsumptionOnGet.bind(this))
+      .on('set', this.handleConsumptionOnSet.bind(this));
+
+    this.consumptionService.getCharacteristic(hap.Characteristic.OutletInUse)
+      .on('get', this.handleConsumptionOutletInUseGet.bind(this));
+
 
     log.info('sonnenBatterie \'%s\' created!', name);
   }
@@ -67,9 +77,55 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
    */
   getServices(): Service[] {
     return [
-      this.batteryService,
       this.gridService,
+      this.batteryService,
+      this.consumptionService,
     ];
+  }
+
+  /**
+   * Handle requests to get the current value of the "On" characteristic
+   */
+  handleGridOnGet(callback) {
+    this.log.debug('Triggered GET On');
+
+    fetch(this.config.url + '/api/v1/status')
+      .then(res => res.json())
+      .then(status => {
+        const currentValue = status['FlowProductionGrid'] === true;
+
+        callback(null, currentValue);
+      })
+      .catch(e => {
+        this.log.error(e);
+      });
+  }
+
+  /**
+   * Handle requests to set the "On" characteristic
+   */
+  handleGridOnSet(value, callback) {
+    this.log.debug('Triggered SET On:', value);
+
+    callback(null);
+  }
+
+  /**
+   * Handle requests to get the current value of the "Outlet In Use" characteristic
+   */
+  handleGridOutletInUseGet(callback) {
+    this.log.debug('Triggered GET OutletInUse');
+
+    fetch(this.config.url + '/api/v1/status')
+      .then(res => res.json())
+      .then(status => {
+        const currentValue = status['FlowProductionGrid'] === true;
+
+        callback(null, currentValue);
+      })
+      .catch(e => {
+        this.log.error(e);
+      });
   }
 
   /**
@@ -120,13 +176,13 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
   /**
    * Handle requests to get the current value of the "On" characteristic
    */
-  handleGridOnGet(callback) {
+  handleConsumptionOnGet(callback) {
     this.log.debug('Triggered GET On');
 
     fetch(this.config.url + '/api/v1/status')
       .then(res => res.json())
       .then(status => {
-        const currentValue = status['FlowProductionGrid'] === true;
+        const currentValue = status['FlowConsumptionProduction'] === true;
 
         callback(null, currentValue);
       })
@@ -138,7 +194,7 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
   /**
    * Handle requests to set the "On" characteristic
    */
-  handleGridOnSet(value, callback) {
+  handleConsumptionOnSet(value, callback) {
     this.log.debug('Triggered SET On:', value);
 
     callback(null);
@@ -147,13 +203,13 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
   /**
    * Handle requests to get the current value of the "Outlet In Use" characteristic
    */
-  handleGridOutletInUseGet(callback) {
+  handleConsumptionOutletInUseGet(callback) {
     this.log.debug('Triggered GET OutletInUse');
 
     fetch(this.config.url + '/api/v1/status')
       .then(res => res.json())
       .then(status => {
-        const currentValue = status['FlowProductionGrid'] === true;
+        const currentValue = status['FlowConsumptionProduction'] === true;
 
         callback(null, currentValue);
       })

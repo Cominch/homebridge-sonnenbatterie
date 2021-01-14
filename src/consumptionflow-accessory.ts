@@ -49,7 +49,7 @@ export class SonnenBatterieConsumptionFlow implements AccessoryPlugin {
     this.batteryService.getCharacteristic(hap.Characteristic.OutletInUse)
       .on('get', this.handleBatteryOutletInUseGet.bind(this));
 
-    this.productionService = new hap.Service.Outlet('Solar', 'Production');
+    this.productionService = new hap.Service.Outlet('Production', 'Production');
 
     // create handlers for required characteristics
     this.productionService.getCharacteristic(hap.Characteristic.On)
