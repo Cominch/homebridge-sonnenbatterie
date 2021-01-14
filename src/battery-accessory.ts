@@ -35,7 +35,7 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
 
     // create handlers for required characteristics
     this.batteryService.getCharacteristic(hap.Characteristic.BatteryLevel)
-      .on('get', this.handleBatteryLevelGet.bind(this));
+      .on('get', this.handleChargeOnGet.bind(this));
 
     this.batteryService.getCharacteristic(hap.Characteristic.ChargingState)
       .on('get', this.handleChargingStateGet.bind(this));
@@ -45,12 +45,16 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
 
 
     // create a new Humidity Sensor service
-    this.chargeService = new hap.Service.HumiditySensor(this.name);
+    this.chargeService = new hap.Service.Lightbulb('Charge');
 
     // create handlers for required characteristics
-    this.chargeService.getCharacteristic(hap.Characteristic.CurrentRelativeHumidity)
-      .on('get', this.handleBatteryLevelGet.bind(this));
+    this.chargeService.getCharacteristic(hap.Characteristic.On)
+      .on('get', this.handleChargingOnGet.bind(this))
+      .on('set', this.handleChargingOnSet.bind(this));
 
+    // create handlers for required characteristics
+    this.chargeService.getCharacteristic(hap.Characteristic.Brightness)
+      .on('get', this.handleChargeOnGet.bind(this));
 
     // create a new Motion Sensor service
     this.autarkyService = new hap.Service.MotionSensor('Autarky');
@@ -103,7 +107,7 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
   /**
    * Handle requests to get the current value of the "Battery Level" characteristic
    */
-  handleBatteryLevelGet(callback) {
+  handleChargeOnGet(callback) {
     this.log.debug('Triggered GET BatteryLevel');
 
     fetch(this.config.url + '/api/v1/status')
@@ -116,6 +120,26 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
       .catch(e => {
         this.log.error(e);
       });
+  }
+
+  /**
+   * Handle requests to set the "On" characteristic
+   */
+  handleChargingOnGet(callback) {
+    this.log.debug('Triggered GET Charging');
+
+    const currentValue = true;
+
+    callback(null, currentValue);
+  }
+
+  /**
+   * Handle requests to set the "On" characteristic
+   */
+  handleChargingOnSet(value, callback) {
+    this.log.debug('Triggered SET On:', value);
+
+    callback(null);
   }
 
 
