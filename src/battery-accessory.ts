@@ -20,6 +20,7 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
   private readonly batteryService: Service;
   private readonly chargeService: Service;
   private readonly autonomyService: Service;
+  private readonly solarSurplusService: Service;
   private readonly informationService: Service;
 
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -56,8 +57,14 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
 
     // create handlers for required characteristics
     this.autonomyService.getCharacteristic(hap.Characteristic.MotionDetected)
-      .on('get', this.handleMotionDetectedGet.bind(this));
+      .on('get', this.handleAutonomyDetectedGet.bind(this));
 
+    // create a new Motion Sensor service
+    this.solarSurplusService = new hap.Service.OccupancySensor('Solar Surplus');
+
+    // create handlers for required characteristics
+    this.solarSurplusService.getCharacteristic(hap.Characteristic.OccupancyDetected)
+      .on('get', this.handleSolarSurplusDetectedGet.bind(this));
 
     this.informationService = new hap.Service.AccessoryInformation()
       .setCharacteristic(hap.Characteristic.Manufacturer, 'Sonnen GmbH')
@@ -88,6 +95,7 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
       this.batteryService,
       this.chargeService,
       this.autonomyService,
+      this.solarSurplusService,
       this.informationService,
     ];
   }
@@ -154,16 +162,39 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
   /**
    * Handle requests to get the current value of the "Motion Detected" characteristic
    */
-  handleMotionDetectedGet(callback) {
+  handleAutonomyDetectedGet(callback) {
     this.log.debug('Triggered GET MotionDetected');
 
     fetch(this.config.url + '/api/v1/status')
       .then(res => res.json())
       .then(status => {
-        const currentCharge = parseInt(status['USOC']);
-        const backupBufferValue = parseInt(status['BackupBuffer']);
+        const gridFeedIn_W = parseInt(status['GridFeedIn_W']);
 
-        const currentValue = currentCharge - backupBufferValue <= 0;
+        const currentValue = gridFeedIn_W > -50;
+
+        //const currentValue = status['FlowConsumptionGrid'] === false;
+
+        callback(null, currentValue);
+      })
+      .catch(e => {
+        this.log.error(e);
+      });
+  }
+
+  /**
+   * Handle requests to get the current value of the "Motion Detected" characteristic
+   */
+  handleSolarSurplusDetectedGet(callback) {
+    this.log.debug('Triggered GET MotionDetected');
+
+    fetch(this.config.url + '/api/v1/status')
+      .then(res => res.json())
+      .then(status => {
+        const production_W = parseInt(status['Production_W']);
+        const consumption_W = parseInt(status['Consumption_W']);
+
+
+        const currentValue = production_W >= consumption_W;
 
         callback(null, currentValue);
       })

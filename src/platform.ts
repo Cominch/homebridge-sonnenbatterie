@@ -1,5 +1,7 @@
 import {AccessoryPlugin, API, HAP, Logging, PlatformConfig, StaticPlatformPlugin} from 'homebridge';
 import {SonnenBatterieBattery} from './battery-accessory';
+import {SonnenBatterieConsumptionFlow} from './consumptionflow-accessory';
+import {SonnenBatterieProductionFlow} from './productionflow-accessory';
 
 import fetch from 'node-fetch';
 
@@ -32,6 +34,20 @@ export class SonnenBatteriePlatform implements StaticPlatformPlugin {
             this.hap,
             this.log,
             'sonnenBatterie',
+            this.config,
+            sonnenConfiguration,
+          ),
+          new SonnenBatterieConsumptionFlow(
+            this.hap,
+            this.log,
+            'Consumption',
+            this.config,
+            sonnenConfiguration,
+          ),
+          new SonnenBatterieProductionFlow(
+            this.hap,
+            this.log,
+            'Production',
             this.config,
             sonnenConfiguration,
           ),
