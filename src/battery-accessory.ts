@@ -7,10 +7,10 @@ import {
   Logging,
   PlatformConfig,
   Service,
-  CharacteristicEventTypes
-} from "homebridge";
+  CharacteristicEventTypes,
+} from 'homebridge';
 
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 export class SonnenBatterieBattery implements AccessoryPlugin {
 
@@ -18,12 +18,15 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
   private readonly config: PlatformConfig;
 
   name: string;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   sonnenConfiguration: Object;
 
   private readonly batteryService: Service;
   private readonly chargeService: Service;
+  private readonly autonomyService: Service;
   private readonly informationService: Service;
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
   constructor(hap: HAP, log: Logging, name: string, config: PlatformConfig, sonnenConfiguration: Object) {
     this.log = log;
     this.name = name;
@@ -45,19 +48,31 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
 
 
     // create a new Humidity Sensor service
-     this.chargeService = new hap.Service.HumiditySensor(this.name);
+    this.chargeService = new hap.Service.HumiditySensor(this.name);
 
     // create handlers for required characteristics
     this.chargeService.getCharacteristic(hap.Characteristic.CurrentRelativeHumidity)
       .on('get', this.handleBatteryLevelGet.bind(this));
 
+
+    // create a new Motion Sensor service
+    this.autonomyService = new hap.Service.MotionSensor('Autonomy');
+
+    // create handlers for required characteristics
+    this.autonomyService.getCharacteristic(hap.Characteristic.MotionDetected)
+      .on('get', this.handleMotionDetectedGet.bind(this));
+
+
     this.informationService = new hap.Service.AccessoryInformation()
-      .setCharacteristic(hap.Characteristic.Manufacturer, "Sonnen GmbH")
-      .setCharacteristic(hap.Characteristic.Model, this.sonnenConfiguration['ERP_HardwareLine']+' '+this.sonnenConfiguration['ERP_HardwareGeneration'])
+      .setCharacteristic(hap.Characteristic.Manufacturer, 'Sonnen GmbH')
+      .setCharacteristic(
+        hap.Characteristic.Model,
+        this.sonnenConfiguration['ERP_HardwareLine'] + ' ' + this.sonnenConfiguration['ERP_HardwareGeneration'],
+      )
       .setCharacteristic(hap.Characteristic.FirmwareRevision, this.sonnenConfiguration['DE_Software'])
       .setCharacteristic(hap.Characteristic.SerialNumber, this.sonnenConfiguration['DE_Ticket_Number']);
 
-    log.info("sonnenBatterie '%s' created!", name);
+    log.info('sonnenBatterie \'%s\' created!', name);
   }
 
   /*
@@ -65,7 +80,7 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
    * Typical this only ever happens at the pairing process.
    */
   identify(): void {
-    this.log("Identify!");
+    this.log('Identify!');
   }
 
   /*
@@ -76,6 +91,7 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
     return [
       this.batteryService,
       this.chargeService,
+      this.autonomyService,
       this.informationService,
     ];
   }
@@ -95,7 +111,7 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
       })
       .catch(e => {
         this.log.error(e);
-      })
+      });
   }
 
 
@@ -114,7 +130,7 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
       })
       .catch(e => {
         this.log.error(e);
-      })
+      });
   }
 
 
@@ -136,6 +152,27 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
       })
       .catch(e => {
         this.log.error(e);
+      });
+  }
+
+  /**
+   * Handle requests to get the current value of the "Motion Detected" characteristic
+   */
+  handleMotionDetectedGet(callback) {
+    this.log.debug('Triggered GET MotionDetected');
+
+    fetch(this.config.url + '/api/v1/status')
+      .then(res => res.json())
+      .then(status => {
+        const currentCharge = parseInt(status['USOC']);
+        const backupBufferValue = parseInt(status['BackupBuffer']);
+
+        const currentValue = currentCharge - backupBufferValue <= 0;
+
+        callback(null, currentValue);
       })
+      .catch(e => {
+        this.log.error(e);
+      });
   }
 }

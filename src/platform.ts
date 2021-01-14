@@ -1,9 +1,9 @@
-import {AccessoryPlugin, API, HAP, Logging, PlatformConfig, StaticPlatformPlugin,} from "homebridge";
-import {SonnenBatterieBattery} from "./battery-accessory";
+import {AccessoryPlugin, API, HAP, Logging, PlatformConfig, StaticPlatformPlugin} from 'homebridge';
+import {SonnenBatterieBattery} from './battery-accessory';
 
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
-const PLATFORM_NAME = "SonnenBatteriePlatform";
+const PLATFORM_NAME = 'SonnenBatteriePlatform';
 
 /*
  * IMPORTANT NOTICE
@@ -56,16 +56,15 @@ export class SonnenBatteriePlatform implements StaticPlatformPlugin {
           new SonnenBatterieBattery(
             this.hap,
             this.log,
-            "sonnenBatterie",
+            'sonnenBatterie',
             this.config,
-            sonnenConfiguration
-          )
+            sonnenConfiguration,
+          ),
         ]);
       })
       .catch(e => {
         this.log.error(e);
-      })
-
+      });
   }
 
 }
