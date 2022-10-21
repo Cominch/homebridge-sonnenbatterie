@@ -11,30 +11,34 @@ If you like this plugin it is possible to donate a "cup of coffee" via Paypal:
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/npluseins)
 
-
 # Installation
+
 1. Install [Homebridge](https://github.com/nfarina/homebridge): `sudo npm install -g --unsafe-perm homebridge`
 2. Install this plugin `sudo npm install -g homebridge-sonnenbatterie`
 3. Add this plugin as a platform to your `config.json` file
 
 ## Configuration
+
 Inside `config.json` of Homebridge:
+
 ```json
 ...
     "platforms": [
         {
 ```
+
 Mandatory:
+
 ```json
             "platform": "sonnenBatterie",
             "name": "sonnenBatterie",
             "url": "http://192.168.178.55:8080",
 ```
+
 * `name` can be freely chosen
 * `url` needs to be set to the protocol (http), IP-adress and port (usually 8080) of your sonnenBatterie.
 
-
-# Reference of all available fields in /api/v1/status (not all are currently used in this plugin):
+# Reference of all available fields in /api/v1/status (not all are currently used in this plugin)
 
 ```json
 {

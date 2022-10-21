@@ -7,6 +7,8 @@ import {
 } from 'homebridge';
 
 import fetch from 'node-fetch';
+import { ISonnenConfiguration } from './contracts/ISonnenConfiguration';
+import { ISonnenStatus } from './contracts/ISonnenStatus';
 
 export class SonnenBatterieProductionFlow implements AccessoryPlugin {
 
@@ -15,14 +17,14 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
 
   name: string;
   // eslint-disable-next-line @typescript-eslint/ban-types
-  sonnenConfiguration: Object;
+  sonnenConfiguration: ISonnenConfiguration;
 
   private readonly gridService: Service;
   private readonly batteryService: Service;
   private readonly consumptionService: Service;
 
   // eslint-disable-next-line @typescript-eslint/ban-types
-  constructor(hap: HAP, log: Logging, name: string, config: PlatformConfig, sonnenConfiguration: Object) {
+  constructor(hap: HAP, log: Logging, name: string, config: PlatformConfig, sonnenConfiguration: ISonnenConfiguration) {
     this.log = log;
     this.name = name;
     this.config = config;
@@ -90,9 +92,9 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
     this.log.debug('Triggered GET On');
 
     fetch(this.config.url + '/api/v1/status')
-      .then(res => res.json())
+      .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
-        const currentValue = status['FlowProductionGrid'] === true;
+        const currentValue = status.FlowProductionGrid === true;
 
         callback(null, currentValue);
       })
@@ -117,9 +119,9 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
     this.log.debug('Triggered GET OutletInUse');
 
     fetch(this.config.url + '/api/v1/status')
-      .then(res => res.json())
+      .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
-        const currentValue = status['FlowProductionGrid'] === true;
+        const currentValue = status.FlowProductionGrid === true;
 
         callback(null, currentValue);
       })
@@ -135,9 +137,9 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
     this.log.debug('Triggered GET On');
 
     fetch(this.config.url + '/api/v1/status')
-      .then(res => res.json())
+      .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
-        const currentValue = status['FlowProductionBattery'] === true;
+        const currentValue = status.FlowProductionBattery === true;
 
         callback(null, currentValue);
       })
@@ -162,9 +164,9 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
     this.log.debug('Triggered GET OutletInUse');
 
     fetch(this.config.url + '/api/v1/status')
-      .then(res => res.json())
+      .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
-        const currentValue = status['FlowProductionBattery'] === true;
+        const currentValue = status.FlowProductionBattery === true;
 
         callback(null, currentValue);
       })
@@ -180,9 +182,9 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
     this.log.debug('Triggered GET On');
 
     fetch(this.config.url + '/api/v1/status')
-      .then(res => res.json())
+      .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
-        const currentValue = status['FlowConsumptionProduction'] === true;
+        const currentValue = status.FlowConsumptionProduction === true;
 
         callback(null, currentValue);
       })
@@ -207,9 +209,9 @@ export class SonnenBatterieProductionFlow implements AccessoryPlugin {
     this.log.debug('Triggered GET OutletInUse');
 
     fetch(this.config.url + '/api/v1/status')
-      .then(res => res.json())
+      .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
-        const currentValue = status['FlowConsumptionProduction'] === true;
+        const currentValue = status.FlowConsumptionProduction === true;
 
         callback(null, currentValue);
       })

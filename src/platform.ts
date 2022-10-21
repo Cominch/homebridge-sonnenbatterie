@@ -1,7 +1,8 @@
 import {AccessoryPlugin, API, HAP, Logging, PlatformConfig, StaticPlatformPlugin} from 'homebridge';
 import {SonnenBatterieBattery} from './battery-accessory';
 import {SonnenBatterieConsumptionFlow} from './consumptionflow-accessory';
-import {SonnenBatterieProductionFlow} from './productionflow-accessory';
+import { SonnenBatterieProductionFlow } from './productionflow-accessory';
+import { ISonnenConfiguration } from './contracts/ISonnenConfiguration';
 
 import fetch from 'node-fetch';
 
@@ -27,8 +28,8 @@ export class SonnenBatteriePlatform implements StaticPlatformPlugin {
    */
   accessories(callback: (foundAccessories: AccessoryPlugin[]) => void): void {
     fetch(this.config.url + '/api/configuration')
-      .then(res => res.json())
-      .then(sonnenConfiguration => {
+      .then(res => res.json() as Promise<ISonnenConfiguration>)
+      .then((sonnenConfiguration: ISonnenConfiguration) => {
         callback([
           new SonnenBatterieBattery(
             this.hap,
