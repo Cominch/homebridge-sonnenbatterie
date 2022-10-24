@@ -1,6 +1,6 @@
 {
   "private": true,
-  "displayName": "sonnenBatterie",
+  "displayName": "Homebridge sonnenBatterie",
   "name": "homebridge-sonnenbatterie",
   "version": "1.0.0",
   "description": "Get information about your sonnenBatterie status.",
