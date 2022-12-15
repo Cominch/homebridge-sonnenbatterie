@@ -7,6 +7,8 @@ import {
 } from 'homebridge';
 
 import fetch from 'node-fetch';
+import { ISonnenConfiguration } from './contracts/ISonnenConfiguration';
+import { ISonnenStatus } from './contracts/ISonnenStatus';
 
 export class SonnenBatterieBattery implements AccessoryPlugin {
 
@@ -14,8 +16,8 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
   private readonly config: PlatformConfig;
 
   name: string;
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  sonnenConfiguration: Object;
+  
+  sonnenConfiguration: ISonnenConfiguration;
 
   private readonly batteryService: Service;
   private readonly chargeService: Service;
@@ -23,15 +25,14 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
   private readonly solarSurplusService: Service;
   private readonly informationService: Service;
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  constructor(hap: HAP, log: Logging, name: string, config: PlatformConfig, sonnenConfiguration: Object) {
+  constructor(hap: HAP, log: Logging, name: string, config: PlatformConfig, sonnenConfiguration: ISonnenConfiguration) {
     this.log = log;
     this.name = name;
     this.config = config;
 
     this.sonnenConfiguration = sonnenConfiguration;
 
-    this.batteryService = new hap.Service.BatteryService(name);
+    this.batteryService = new hap.Service.Battery(name);
 
     // create handlers for required characteristics
     this.batteryService.getCharacteristic(hap.Characteristic.BatteryLevel)
@@ -72,12 +73,9 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
 
     this.informationService = new hap.Service.AccessoryInformation()
       .setCharacteristic(hap.Characteristic.Manufacturer, 'Sonnen GmbH')
-      .setCharacteristic(
-        hap.Characteristic.Model,
-        this.sonnenConfiguration['ERP_HardwareLine'] + ' ' + this.sonnenConfiguration['ERP_HardwareGeneration'],
-      )
+      .setCharacteristic(hap.Characteristic.Model, this.config.model ? this.config.model : 'unknown')
       .setCharacteristic(hap.Characteristic.FirmwareRevision, this.sonnenConfiguration['DE_Software'])
-      .setCharacteristic(hap.Characteristic.SerialNumber, this.sonnenConfiguration['DE_Ticket_Number']);
+      .setCharacteristic(hap.Characteristic.SerialNumber, this.config.serial ? this.config.serial : 'unknown');
 
     log.info('sonnenBatterie \'%s\' created!', name);
   }
@@ -110,10 +108,10 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
   handleChargeOnGet(callback) {
     this.log.debug('Triggered GET BatteryLevel');
 
-    fetch(this.config.url + '/api/v1/status')
-      .then(res => res.json())
+    fetch(this.config.url + '/api/v2/status')
+      .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
-        const currentValue = parseInt(status['USOC']);
+        const currentValue = status.USOC;
 
         callback(null, currentValue);
       })
@@ -149,10 +147,10 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
   handleChargingStateGet(callback) {
     this.log.debug('Triggered GET ChargingState');
 
-    fetch(this.config.url + '/api/v1/status')
-      .then(res => res.json())
+    fetch(this.config.url + '/api/v2/status')
+      .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
-        const currentValue = status['BatteryCharging'] === true;
+        const currentValue = status.BatteryCharging === true;
 
         callback(null, currentValue);
       })
@@ -168,11 +166,11 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
   handleStatusLowBatteryGet(callback) {
     this.log.debug('Triggered GET StatusLowBattery');
 
-    fetch(this.config.url + '/api/v1/status')
-      .then(res => res.json())
+    fetch(this.config.url + '/api/v2/status')
+      .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
-        const currentCharge = parseInt(status['USOC']);
-        const backupBufferValue = parseInt(status['BackupBuffer']);
+        const currentCharge = status.USOC;
+        const backupBufferValue = parseInt(status.BackupBuffer);
 
         const currentValue = currentCharge - backupBufferValue <= 0;
 
@@ -189,10 +187,10 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
   handleAutarkyDetectedGet(callback) {
     this.log.debug('Triggered GET MotionDetected');
 
-    fetch(this.config.url + '/api/v1/status')
-      .then(res => res.json())
+    fetch(this.config.url + '/api/v2/status')
+      .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
-        const gridFeedIn_W = parseInt(status['GridFeedIn_W']);
+        const gridFeedIn_W = status.GridFeedIn_W;
 
         const currentValue = gridFeedIn_W > -50;
 
@@ -211,12 +209,11 @@ export class SonnenBatterieBattery implements AccessoryPlugin {
   handleSurplusDetectedGet(callback) {
     this.log.debug('Triggered GET MotionDetected');
 
-    fetch(this.config.url + '/api/v1/status')
-      .then(res => res.json())
+    fetch(this.config.url + '/api/v2/status')
+      .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
-        const production_W = parseInt(status['Production_W']);
-        const consumption_W = parseInt(status['Consumption_W']);
-
+        const production_W = status.Production_W;
+        const consumption_W = status.Consumption_W;
 
         const currentValue = production_W >= consumption_W;
 
