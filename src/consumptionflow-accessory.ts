@@ -92,7 +92,7 @@ export class SonnenBatterieConsumptionFlow implements AccessoryPlugin {
   handleGridOnGet(callback) {
     this.log.debug('Triggered GET On');
 
-    fetch(this.config.url + '/api/v1/status')
+    fetch(this.config.url + '/api/v2/status')
       .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
         const currentValue = status.FlowConsumptionGrid === true;
@@ -119,7 +119,7 @@ export class SonnenBatterieConsumptionFlow implements AccessoryPlugin {
   handleGridOutletInUseGet(callback) {
     this.log.debug('Triggered GET OutletInUse');
 
-    fetch(this.config.url + '/api/v1/status')
+    fetch(this.config.url + '/api/v2/status')
       .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
         const currentValue = status.FlowConsumptionGrid === true;
@@ -137,7 +137,7 @@ export class SonnenBatterieConsumptionFlow implements AccessoryPlugin {
   handleBatteryOnGet(callback) {
     this.log.debug('Triggered GET On');
 
-    fetch(this.config.url + '/api/v1/status')
+    fetch(this.config.url + '/api/v2/status')
       .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
         const currentValue = status.FlowConsumptionBattery === true;
@@ -164,7 +164,7 @@ export class SonnenBatterieConsumptionFlow implements AccessoryPlugin {
   handleBatteryOutletInUseGet(callback) {
     this.log.debug('Triggered GET OutletInUse');
 
-    fetch(this.config.url + '/api/v1/status')
+    fetch(this.config.url + '/api/v2/status')
       .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
         const currentValue = status.FlowConsumptionBattery === true;
@@ -182,7 +182,7 @@ export class SonnenBatterieConsumptionFlow implements AccessoryPlugin {
   handleProductionOnGet(callback) {
     this.log.debug('Triggered GET On');
 
-    fetch(this.config.url + '/api/v1/status')
+    fetch(this.config.url + '/api/v2/status')
       .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
         const currentValue = status.FlowConsumptionProduction === true;
@@ -209,7 +209,7 @@ export class SonnenBatterieConsumptionFlow implements AccessoryPlugin {
   handleProductionOutletInUseGet(callback) {
     this.log.debug('Triggered GET OutletInUse');
 
-    fetch(this.config.url + '/api/v1/status')
+    fetch(this.config.url + '/api/v2/status')
       .then(res => res.json() as unknown as ISonnenStatus)
       .then(status => {
         const currentValue = status.FlowConsumptionProduction === true;

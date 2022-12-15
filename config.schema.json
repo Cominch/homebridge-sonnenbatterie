@@ -16,6 +16,24 @@
         "type": "string",
         "required": true,
         "default": "http://0.0.0.0:8080"
+      },
+      "token": {
+        "title": "Auth Token",
+        "type": "string",
+        "required": true,
+        "default": ""
+      },
+      "serial": {
+        "title": "Serial Number",
+        "type": "string",
+        "required": true,
+        "default": ""
+      },
+      "model": {
+        "title": "Model",
+        "type": "string",
+        "required": true,
+        "default": ""
       }
     }
   }

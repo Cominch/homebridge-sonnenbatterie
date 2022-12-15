@@ -27,4 +27,6 @@ export interface ISonnenStatus {
     USOC: number;
     Uac: number;
     Ubat: number;
+    dischargeNotAllowed: boolean;
+    generator_autostart: boolean;
 }
